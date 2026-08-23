@@ -1,0 +1,30 @@
+# build output
+bin/
+obj/
+out/
+
+# IDE
+.vs/
+.vscode/
+.idea/
+*.user
+*.suo
+*.swp
+
+# test & coverage
+TestResults/
+coverage/
+*.trx
+
+# packages & artifacts
+*.nupkg
+packages/
+artifacts/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# local secrets (use user-secrets / env vars instead)
+*.local.json
+.env
