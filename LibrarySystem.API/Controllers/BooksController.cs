@@ -1,5 +1,6 @@
 using LibrarySystem.Application.Commands.Books.CreateBook;
 using LibrarySystem.Application.Queries.Books.GetBook;
+using LibrarySystem.Application.Queries.Books.GetBooks;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -14,6 +15,20 @@ public class BooksController : ControllerBase
     public BooksController(ISender sender)
     {
         _sender = sender;
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> GetBooks(
+        CancellationToken cancellationToken,
+        int page = 1,
+        int pageSize = 20,
+        string? search = null)
+    {
+        var query = new GetBooksQuery(page, pageSize, search);
+
+        var books = await _sender.Send(query, cancellationToken);
+
+        return Ok(books);
     }
 
     [HttpGet("{id:guid}")]
