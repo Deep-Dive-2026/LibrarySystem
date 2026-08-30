@@ -11,6 +11,7 @@ public class CreateBookHandler
     private readonly IBookRepository _repository;
     private readonly ILogger<CreateBookHandler> _logger;
 
+
     public CreateBookHandler(
         IBookRepository repository,
         ILogger<CreateBookHandler> logger)
@@ -35,6 +36,7 @@ public class CreateBookHandler
         _logger.LogInformation(
             "Book {BookId} created with title {Title}",
             book.Id, book.Title);
+
 
         return book.Id;
     }

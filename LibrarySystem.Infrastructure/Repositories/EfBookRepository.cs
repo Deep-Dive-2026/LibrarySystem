@@ -1,5 +1,6 @@
 using LibrarySystem.Application.Interfaces;
 using LibrarySystem.Application.Queries.Books.GetBooks;
+using LibrarySystem.Application.Queries.Books.GetTopBooks;
 using LibrarySystem.Domain;
 using LibrarySystem.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
@@ -28,7 +29,6 @@ public class EfBookRepository : IBookRepository
         CancellationToken cancellationToken)
     {
         _db.Books.Add(book);
-
         await _db.SaveChangesAsync(cancellationToken);
     }
 
@@ -51,10 +51,30 @@ public class EfBookRepository : IBookRepository
             .Take(pageSize)
             .Select(b => new BookDto
             {
-                Id         = b.Id,
-                Title      = b.Title,
+                Id = b.Id,
+                Title = b.Title,
                 AuthorName = b.Author!.Name
             })
             .ToListAsync(cancellationToken);
+    }
+
+
+
+    public async Task<IReadOnlyList<TopBooksDto>> GetTopBooksAsync(CancellationToken cancellationToken)
+    {
+        IQueryable<Loan> query = _db.Loans;
+
+       
+        return  await query
+               .GroupBy(l => l.BookId)
+               .Select(g => new TopBooksDto
+               {
+                   Id = g.Key.ToString(),
+                   //name = g.Key.
+                   Count = g.Count()
+               })
+               .OrderByDescending(x => x.Count)
+               .Take(10)
+               .ToListAsync(cancellationToken);
     }
 }

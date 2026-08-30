@@ -1,5 +1,6 @@
 using LibrarySystem.Application.Interfaces;
 using LibrarySystem.Application.Queries.Books.GetBooks;
+using LibrarySystem.Application.Queries.Books.GetTopBooks;
 using LibrarySystem.Domain;
 
 namespace LibrarySystem.Infrastructure.Repositories;
@@ -42,11 +43,16 @@ public class InMemoryBookRepository : IBookRepository
             .Take(pageSize)
             .Select(b => new BookDto
             {
-                Id    = b.Id,
+                Id = b.Id,
                 Title = b.Title
             })
             .ToList();
 
         return Task.FromResult(result);
+    }
+
+    public Task<IReadOnlyList<TopBooksDto>> GetTopBooksAsync(CancellationToken cancellationToken)
+    {
+        throw new NotImplementedException();
     }
 }

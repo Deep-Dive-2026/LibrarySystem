@@ -1,3 +1,4 @@
+using LibrarySystem.API.Extensions;
 using LibrarySystem.Application.Commands.Books.CreateBook;
 using LibrarySystem.Application.Interfaces;
 using LibrarySystem.Application.Services;
@@ -18,11 +19,45 @@ builder.Services.AddDbContext<LibraryDbContext>(options =>
     options.UseSqlServer(
         builder.Configuration.GetConnectionString("Library")));
 
+builder.Services.AddSwaggerConfiguration();
 builder.Services.AddScoped<IBookRepository, EfBookRepository>();
-
 builder.Services.AddMediatR(config =>
     config.RegisterServicesFromAssembly(
         typeof(CreateBookCommand).Assembly));
+
+
+//IMemory Cache
+builder.Services.AddMemoryCache();
+
+
+//Redis Cache
+builder.Services.AddStackExchangeRedisCache(
+    options =>
+    {
+        //options.Configuration = "localhost:6379";
+        options.Configuration = "127.0.0.1:6379";
+        options.InstanceName = "library:";
+    });
+
+
+// Hybrid Cache
+builder.Services.AddHybridCache();
+
+
+//Output Cache
+builder.Services.AddOutputCache(options =>
+{
+    options.AddPolicy("Books", policy =>
+        policy.Expire(TimeSpan.FromSeconds(60))
+              .Tag("books"));
+});
+
+
+
+// Response Cache
+builder.Services.AddResponseCaching();
+
+
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
@@ -54,6 +89,14 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+
+// Add Output Caching pipline
+app.UseOutputCache();
+
+// Add Response Caching pipline
+app.UseResponseCaching();
+
 
 app.MapControllers();
 
