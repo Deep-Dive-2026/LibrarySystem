@@ -12,6 +12,11 @@ public class LoanConfiguration : IEntityTypeConfiguration<Loan>
 
         builder.HasKey(l => l.Id);
 
+        builder.Property(x => x.BorrowedAt)
+            .IsRequired();
+        builder.Property(x => x.ReturnedAt)
+            .IsRequired(false);
+
         builder.HasOne<Book>()
             .WithMany()
             .HasForeignKey(l => l.BookId)

@@ -1,9 +1,13 @@
+using Hangfire;
+using Hangfire.SqlServer;
 using LibrarySystem.API.Extensions;
 using LibrarySystem.Application.Commands.Books.CreateBook;
 using LibrarySystem.Application.Interfaces;
 using LibrarySystem.Application.Services;
+using LibrarySystem.Application.Services.Jobs;
 using LibrarySystem.Infrastructure.Persistence;
 using LibrarySystem.Infrastructure.Repositories;
+using LibrarySystem.Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 
@@ -19,11 +23,29 @@ builder.Services.AddDbContext<LibraryDbContext>(options =>
     options.UseSqlServer(
         builder.Configuration.GetConnectionString("Library")));
 
+// Add Hangfire services
+builder.Services.AddHangfire(config =>
+{
+    config.UseSqlServerStorage(
+        builder.Configuration.GetConnectionString("Library"));
+});
+
+builder.Services.AddHangfireServer();
+
 builder.Services.AddSwaggerConfiguration();
 builder.Services.AddScoped<IBookRepository, EfBookRepository>();
 builder.Services.AddMediatR(config =>
     config.RegisterServicesFromAssembly(
         typeof(CreateBookCommand).Assembly));
+
+// Add application services and repositories
+builder.Services.AddScoped<ILoanRepository, EfLoanRepository>();
+
+builder.Services.AddScoped<IMemberRepository, EfMemberRepository>();
+
+builder.Services.AddScoped<IEmailSender, EmailSender>();
+
+builder.Services.AddScoped<SendLoanReceiptJob>();
 
 
 //IMemory Cache
@@ -66,6 +88,9 @@ builder.Services.AddSwaggerGen();
 var app = builder.Build();
 
 app.UseSerilogRequestLogging();
+
+// Add Hangfire dashboard
+app.UseHangfireDashboard("/hangfire");
 
 if (app.Environment.IsDevelopment())
 {
