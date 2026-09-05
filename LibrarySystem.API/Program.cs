@@ -26,6 +26,26 @@ builder.Services.AddMediatR(config =>
         typeof(CreateBookCommand).Assembly));
 
 
+
+
+builder.Services.AddSignalR();
+
+
+
+builder.Services.AddCors(opt =>
+{
+    opt.AddPolicy("AllowAll",
+        policy =>
+        {
+            policy.AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials()
+            .SetIsOriginAllowed(_ => true);
+        });
+});
+
+
+
 //IMemory Cache
 builder.Services.AddMemoryCache();
 
@@ -38,6 +58,8 @@ builder.Services.AddStackExchangeRedisCache(
         options.Configuration = "127.0.0.1:6379";
         options.InstanceName = "library:";
     });
+
+
 
 
 // Hybrid Cache
@@ -90,13 +112,14 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseCors("AllowAll");
 
 // Add Output Caching pipline
 app.UseOutputCache();
 
 // Add Response Caching pipline
 app.UseResponseCaching();
-
+app.MapHub<LibrarySystem.API.Hubs.ChatHub>("message");
 
 app.MapControllers();
 
