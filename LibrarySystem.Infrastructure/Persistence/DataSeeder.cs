@@ -36,7 +36,7 @@ public static class DataSeeder
             .ToList();
 
         var members = Enumerable.Range(0, MemberCount)
-            .Select(_ => new Member(faker.Random.Guid(), faker.Name.FullName()))
+            .Select(_ => new Member(faker.Random.Guid(), faker.Name.FullName(),faker.Internet.Email()))
             .ToList();
 
         var loans = Enumerable.Range(0, LoanCount)
